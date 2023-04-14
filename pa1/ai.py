@@ -90,9 +90,9 @@ class AI:
                         # (13, 19)
 
         #Finishes search if we've found the goal.
-        # if current == self.grid.goal:
-        #     self.finished = True
-        #     return
+        if current == self.grid.goal:
+            self.finished = True
+            return
 
         # ACTIONS = [(0,1),(1,0),(0,-1),(-1,0)] up,right,down,left
         # find the children of current node and set the color
@@ -114,14 +114,8 @@ class AI:
                 if n[0] in range(self.grid.row_range) and n[1] in range(self.grid.col_range):
                     if not self.grid.nodes[n].puddle:
                             self.previous[n] = current
-
-                            # can't find the goal
-                            if n != self.grid.goal:
-                                self.frontier.append(n)
-                                self.grid.nodes[n].color_frontier = True
-                            else:
-                                # finished because find the goal
-                                self.finished = True
+                            self.frontier.append(n)
+                            self.grid.nodes[n].color_frontier = True
 
     #Implement BFS here (Don't forget to implement initialization at line 23)
     def bfs_step(self):
@@ -133,6 +127,12 @@ class AI:
         
         # current node should be the first one in frontier
         current = self.frontier.pop(0)
+
+        #Finishes search if we've found the goal.
+        if current == self.grid.goal:
+            self.finished = True
+            return
+        
         # find the children of current node and set the color
         children = [(current[0]+a[0], current[1]+a[1]) for a in ACTIONS]
         self.grid.nodes[current].color_checked = True
@@ -148,13 +148,9 @@ class AI:
                 if n[0] in range(self.grid.row_range) and n[1] in range(self.grid.col_range):
                     if not self.grid.nodes[n].puddle:
                         self.previous[n] = current
-                        # can't find the goal
-                        if n != self.grid.goal:
-                            self.frontier.append(n)
-                            self.grid.nodes[n].color_frontier = True
-                        else:
-                            # finished because find the goal
-                            self.finished = True
+                        self.frontier.append(n)
+                        self.grid.nodes[n].color_frontier = True
+                        
 
 
     #Implement UCS here (Don't forget to implement initialization at line 23)
@@ -167,6 +163,12 @@ class AI:
         
         # pop the element with the minimum cost from the frontier by using heap queue
         current = heappop(self.frontier)
+
+        #Finishes search if we've found the goal.
+        if current[1] == self.grid.goal:
+            self.finished = True
+            return
+        
         # print(current)    -> (0, (15, 19))
         # print(current[1]) -> (15, 19)
         # print(current[1][0]) -> 15
@@ -191,17 +193,14 @@ class AI:
                         # update previous
                         self.previous[n] = current[1]
                         # print(self.previous[n])
-                        # can't find the goal
-                        if n != self.grid.goal:
-                            # self.frontier.append(n)
-                            # put the node and updated cost
-                            heappush(self.frontier,(self.grid.nodes[n].cost()+current[0],n))
-                            # add to new_frontier so that it can be checked
-                            self.new_frontier.append(n)
-                            self.grid.nodes[n].color_frontier = True
-                        else:
-                            # finished because find the goal
-                            self.finished = True
+                        
+                        # self.frontier.append(n)
+                        # put the node and updated cost
+                        heappush(self.frontier,(self.grid.nodes[n].cost()+current[0],n))
+                        # add to new_frontier so that it can be checked
+                        self.new_frontier.append(n)
+                        self.grid.nodes[n].color_frontier = True
+                        
 
     
     #Implement Astar here (Don't forget to implement initialization at line 23)
@@ -220,6 +219,11 @@ class AI:
         # f = heappop(self.frontier)
         # current = heappop(self.frontier)
         f,g,current = heappop(self.frontier)
+
+        #Finishes search if we've found the goal.
+        if current == self.grid.goal:
+            self.finished = True
+            return
 
         # print(g,h,current) #-> 0 0 (15, 19)
         
@@ -240,22 +244,19 @@ class AI:
                         # update previous
                         self.previous[n] = current
                         # print(self.previous[n])
-                        # can't find the goal
-                        if n != self.grid.goal:
-                            #F=G+H
-                            # update values
-                            #h = f - g
-                            h = abs(n[0] - self.grid.goal[0]) + abs(n[1] - self.grid.goal[1])
-                            new_g = self.grid.nodes[n].cost() + g
-                            new_f = new_g + h
-                            # new_h = new_f - new_g
-                            
-                            heappush(self.frontier,(new_f, new_g, n))
-                            
-                            # add to new_frontier so that it can be checked
-                            self.new_frontier.append(n)
-                            self.grid.nodes[n].color_frontier = True
-                        else:
-                            # finished because find the goal
-                            self.finished = True
+                        #F=G+H
+                        # update values
+                        #h = f - g
+                        h = abs(n[0] - self.grid.goal[0]) + abs(n[1] - self.grid.goal[1])
+                        new_g = self.grid.nodes[n].cost() + g
+                        new_f = new_g + h
+                        # new_h = new_f - new_g
+                        
+                        heappush(self.frontier,(new_f, new_g, n))
+                        
+                        # add to new_frontier so that it can be checked
+                        self.new_frontier.append(n)
+                        self.grid.nodes[n].color_frontier = True
+                       
+                       
 
