@@ -244,7 +244,8 @@ class AI:
                         if n != self.grid.goal:
                             #F=G+H
                             # update values
-                            h = f - g
+                            #h = f - g
+                            h = abs(n[0] - self.grid.goal[0]) + abs(n[1] - self.grid.goal[1])
                             new_g = self.grid.nodes[n].cost() + g
                             new_f = new_g + h
                             # new_h = new_f - new_g
