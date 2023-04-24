@@ -80,9 +80,30 @@ class AI:
     # Return a (None, expectimax value) tuple if node is a CHANCE_PLAYER
     def expectimax(self, node = None):
         # TODO: delete this random choice but make sure the return type of the function is the same
+        
+        if node.is_terminal():
+            # If the node is a terminal node, return its score
+            return None, node.state[1]
+        
+        if node.player_type == MAX_PLAYER:
+            value = -inf
+            direction = 0
+            for c in node.children:
+                new_value = max(value, self.expectimax(c)[1])   # max value
+                if(new_value >= value):
+                    value = new_value
+                    direction = c[0]
+            return direction,value
+
+        elif node.player_type == CHANCE_PLAYER:
+            value = 0
+            for c in node.children:
+                #value += (1/len(node.children))* self.expectimax(c)[1]  
+                value = max(value, self.expectimax(c)[1])
+            return None,value
+
        
-       
-        return random.randint(0, 3), 0
+       # return random.randint(0, 3), 0
 
 
     # Return decision at the root
