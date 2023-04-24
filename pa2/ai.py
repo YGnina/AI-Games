@@ -12,7 +12,6 @@ MAX_PLAYER, CHANCE_PLAYER = 0, 1
 class Node: 
     # Recommended: do not modify this __init__ function
     def __init__(self, state, player_type):
-        #self.state = (state[0], state[1])
         self.state = (state[0], state[1])
 
         # to store a list of (direction, node) tuples
@@ -52,11 +51,10 @@ class AI:
             #Place a random tile a 2 in an empty tile - get_open_tiles() returns all empty tiles
             empty_tile = self.simulator.get_open_tiles()
             #self.simulator.set_state(self.simulator.get_state()[0],self.simulator.get_state()[1])
-            # self.simulator.set_state(node.state[0],node.state[1])
+            self.simulator.set_state(node.state[0],node.state[1])
             #print(self.simulator.get_state()[1])
             # #Child nodes = #empty tiles
             for x,y in empty_tile:
-                self.simulator.set_state(node.state[0],node.state[1])
                 self.simulator.tile_matrix[x][y] = 2
                 child = Node(self.simulator.current_state(),MAX_PLAYER) #child shoud have different player type
                 node.children.append(child)
@@ -73,14 +71,14 @@ class AI:
                 self.simulator.set_state(node.state[0],node.state[1])
                 # - Max node can have at most 4 children
                 # - Check if action is possible by using move() in game class - Returns True if valid
-                if(self.simulator.move(m)):
+                if(self.simulator.move(m)):     #valid move
                     child = Node(self.simulator.current_state(), CHANCE_PLAYER)
                     node.children.append(child)
                     self.build_tree(child, depth-1)
-
                 #     self.simulator.set_state(node.state[0], node.state[1])
-                else:
-                    node.children.append(Node(self.simulator.current_state(), None))
+                else:                           #invalid move
+                    child = Node(self.simulator.current_state(), None)
+                    node.children.append(child)
                     
 
     def chance(self,node):
@@ -92,7 +90,7 @@ class AI:
     def expectimax(self, node = None):
         # TODO: delete this random choice but make sure the return type of the function is the same
         
-        if node is None:
+        if node == None:
             node = self.root
 
         if node.player_type == None:
@@ -106,7 +104,7 @@ class AI:
             direction = 0
             for d,c in enumerate(node.children):    #node.children:
                 new_value = max(value, self.expectimax(c)[1])   # max value
-                if(new_value != value):
+                if(new_value > value):
                     value = new_value
                     direction = d   #random.randint(0, 3)    #c[0]
             return direction,value
@@ -116,10 +114,8 @@ class AI:
             for c in node.children:
                 #value = max(value, self.expectimax(c)[1])
                 value += self.expectimax(c)[1] * self.chance(node)
-                
             return None,value
         
-       
        # return random.randint(0, 3), 0
 
 
