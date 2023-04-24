@@ -74,7 +74,9 @@ class AI:
                 # - Max node can have at most 4 children
                 # - Check if action is possible by using move() in game class - Returns True if valid
 
-            
+    def chance(self,node):
+        return 1/len(node.children)     
+      
     # TODO: expectimax calculation.
     # Return a (best direction, expectimax value) tuple if node is a MAX_PLAYER
     # Return a (None, expectimax value) tuple if node is a CHANCE_PLAYER
@@ -92,16 +94,17 @@ class AI:
                 new_value = max(value, self.expectimax(c)[1])   # max value
                 if(new_value >= value):
                     value = new_value
-                    direction = c[0]
+                    direction = random.randint(0, 3)    #c[0]
             return direction,value
 
         elif node.player_type == CHANCE_PLAYER:
             value = 0
             for c in node.children:
-                #value += (1/len(node.children))* self.expectimax(c)[1]  
-                value = max(value, self.expectimax(c)[1])
+                #value = max(value, self.expectimax(c)[1])
+                value += self.expectimax(c)[1] * self.chance(node)
             return None,value
-
+        else:
+            print("error")
        
        # return random.randint(0, 3), 0
 
