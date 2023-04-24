@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 import copy, random
 from game import Game
 
+from math import inf
+
 MOVES = {0: 'up', 1: 'left', 2: 'down', 3: 'right'}
 MAX_PLAYER, CHANCE_PLAYER = 0, 1 
 
@@ -19,7 +21,8 @@ class Node:
     # returns whether this is a terminal state (i.e., no children)
     def is_terminal(self):
         #TODO: complete this
-        pass
+        #pass
+        return len(self.children) == 0
 
 # AI agent. Determine the next move.
 class AI:
@@ -34,14 +37,53 @@ class AI:
 
     # TODO: build a game tree from the current node up to the given depth
     def build_tree(self, node = None, depth = 0):
-        pass
+        #pass
+        if node == None:
+            node = self.root
 
+        if depth >= 0:
+            if node.player_type == CHANCE_PLAYER: #Game simulator
+
+                #Place a random tile a 2 in an empty tile - get_open_tiles() returns all empty tiles
+                empty_tile = self.simulator.get_open_tiles()
+                self.simulator.set_state(self.simulator.get_state()[0],self.simulator.get_state()[1])
+                #print(self.simulator.get_state()[1])
+                # #Child nodes = #empty tiles
+                for x,y in empty_tile:
+                    self.simulator.tile_matrix[x][y] = 2
+                    child =  Node(self.simulator.current_state(),MAX_PLAYER) #child shoud have different player type
+                    node.children.append(child)
+                    self.build_tree(child,depth-1)
+
+                # Likelihood of transition = 1/(#empty tiles)
+                likelihood = 1/len(empty_tile)      #?
+            
+
+            elif node.player_type == MAX_PLAYER:
+                # 4 actions: 0 - up, 1 - left, 2 - down, 3 - right
+                for m in MOVES:
+                    self.simulator.set_state(self.simulator.get_state()[0],self.simulator.get_state()[1])
+                    if(self.simulator.move(m)):
+                        child = Node(self.simulator.current_state(), CHANCE_PLAYER)
+                        node.children.append(child)
+                        self.build_tree(child, depth-1)
+                    else:
+                        node.children.append(Node(self.simulator.current_state(), 2))
+                    
+
+                # - Max node can have at most 4 children
+                # - Check if action is possible by using move() in game class - Returns True if valid
+
+            
     # TODO: expectimax calculation.
     # Return a (best direction, expectimax value) tuple if node is a MAX_PLAYER
     # Return a (None, expectimax value) tuple if node is a CHANCE_PLAYER
     def expectimax(self, node = None):
         # TODO: delete this random choice but make sure the return type of the function is the same
+       
+       
         return random.randint(0, 3), 0
+
 
     # Return decision at the root
     def compute_decision(self):
