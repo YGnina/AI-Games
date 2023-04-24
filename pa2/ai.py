@@ -12,7 +12,8 @@ MAX_PLAYER, CHANCE_PLAYER = 0, 1
 class Node: 
     # Recommended: do not modify this __init__ function
     def __init__(self, state, player_type):
-        self.state = (state[0], state[1])
+        #self.state = (state[0], state[1])
+        self.state = (copy.deepcopy(state[0]), state[1])
 
         # to store a list of (direction, node) tuples
         self.children = []
@@ -78,8 +79,8 @@ class AI:
                     self.build_tree(child, depth-1)
 
                 #     self.simulator.set_state(node.state[0], node.state[1])
-                # else:
-                #     node.children.append(Node(self.simulator.current_state(), 2))
+                else:
+                    node.children.append(Node(self.simulator.current_state(), 2))
                     
 
                 
@@ -95,19 +96,20 @@ class AI:
         
         if node.is_terminal():
             # If the node is a terminal node, return its score
-            return (None, node.state[1])
+            return None, node.state[1]
+        
         if node is None:
             node = self.root
 
         if node.player_type == MAX_PLAYER:
             value = -inf
-            direction = None
+            direction = 0
             for d,c in enumerate(node.children):    #node.children:
                 new_value = max(value, self.expectimax(c)[1])   # max value
-                # if(new_value != value):
-                value = new_value
-                direction = d   #random.randint(0, 3)    #c[0]
-            return (direction,value)
+                if(new_value != value):
+                    value = new_value
+                    direction = d   #random.randint(0, 3)    #c[0]
+            return direction,value
 
         elif node.player_type == CHANCE_PLAYER:
             value = 0
@@ -115,9 +117,9 @@ class AI:
                 #value = max(value, self.expectimax(c)[1])
                 value += self.expectimax(c)[1] * self.chance(node)
                 
-            return (None,value)
+            return None,value
         else:
-            return (None,0)
+            return None,0
        
        # return random.randint(0, 3), 0
 
