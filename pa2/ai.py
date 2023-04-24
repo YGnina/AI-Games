@@ -13,7 +13,7 @@ class Node:
     # Recommended: do not modify this __init__ function
     def __init__(self, state, player_type):
         #self.state = (state[0], state[1])
-        self.state = (copy.deepcopy(state[0]), state[1])
+        self.state = (state[0], state[1])
 
         # to store a list of (direction, node) tuples
         self.children = []
@@ -80,10 +80,8 @@ class AI:
 
                 #     self.simulator.set_state(node.state[0], node.state[1])
                 else:
-                    node.children.append(Node(self.simulator.current_state(), 2))
+                    node.children.append(Node(self.simulator.current_state(), None))
                     
-
-                
 
     def chance(self,node):
         return 1/len(node.children)     
@@ -94,13 +92,15 @@ class AI:
     def expectimax(self, node = None):
         # TODO: delete this random choice but make sure the return type of the function is the same
         
-        if node.is_terminal():
-            # If the node is a terminal node, return its score
-            return None, node.state[1]
-        
         if node is None:
             node = self.root
 
+        if node.player_type == None:
+            return None, 0
+        
+        if node.is_terminal():
+            return None, node.state[1]
+        
         if node.player_type == MAX_PLAYER:
             value = -inf
             direction = 0
@@ -118,8 +118,7 @@ class AI:
                 value += self.expectimax(c)[1] * self.chance(node)
                 
             return None,value
-        else:
-            return None,0
+        
        
        # return random.randint(0, 3), 0
 
