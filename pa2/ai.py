@@ -49,17 +49,20 @@ class AI:
         if node.player_type == CHANCE_PLAYER: #Game simulator
 
             #Place a random tile a 2 in an empty tile - get_open_tiles() returns all empty tiles
+            # get all empty tiles
             empty_tile = self.simulator.get_open_tiles()
             #self.simulator.set_state(self.simulator.get_state()[0],self.simulator.get_state()[1])
             self.simulator.set_state(node.state[0],node.state[1])
             #print(self.simulator.get_state()[1])
             # #Child nodes = #empty tiles
             for x,y in empty_tile:
+                # put a 2
                 self.simulator.tile_matrix[x][y] = 2
                 child = Node(self.simulator.current_state(),MAX_PLAYER) #child shoud have different player type
                 node.children.append(child)
                 # print(child)
                 self.build_tree(child,depth-1)
+                # reset the state 
                 self.simulator.set_state(node.state[0], node.state[1])
 
             # Likelihood of transition = 1/(#empty tiles) -> chance()
@@ -75,10 +78,14 @@ class AI:
                     child = Node(self.simulator.current_state(), CHANCE_PLAYER)
                     node.children.append(child)
                     self.build_tree(child, depth-1)
-                #     self.simulator.set_state(node.state[0], node.state[1])
+                    # reset the state 
+                    self.simulator.set_state(node.state[0], node.state[1])
                 else:                           #invalid move
                     child = Node(self.simulator.current_state(), None)
                     node.children.append(child)
+                    self.build_tree(child, depth-1)
+                    # reset the state 
+                    self.simulator.set_state(node.state[0], node.state[1])
                     
 
     def chance(self,node):
@@ -90,14 +97,14 @@ class AI:
     def expectimax(self, node = None):
         # TODO: delete this random choice but make sure the return type of the function is the same
         
+        if node.is_terminal():
+            return None, node.state[1]
+        
         if node == None:
             node = self.root
 
         if node.player_type == None:
             return None, 0
-        
-        if node.is_terminal():
-            return None, node.state[1]
         
         if node.player_type == MAX_PLAYER:
             value = -inf
@@ -117,7 +124,6 @@ class AI:
             return None,value
         
        # return random.randint(0, 3), 0
-
 
     # Return decision at the root
     def compute_decision(self):
