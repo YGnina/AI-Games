@@ -86,7 +86,6 @@ class AI:
                     self.build_tree(child, depth-1)
                     # reset the state 
                     self.simulator.set_state(node.state[0], node.state[1])
-                    
 
     def chance(self,node):
         return 1/len(node.children)     
@@ -97,15 +96,16 @@ class AI:
     def expectimax(self, node = None):
         # TODO: delete this random choice but make sure the return type of the function is the same
         
+        # don't know why but this must be the first statement to finish the game
+        if node.player_type == None:
+            return None, 0
+
         if node.is_terminal():
             return None, node.state[1]
         
         if node == None:
             node = self.root
 
-        if node.player_type == None:
-            return None, 0
-        
         if node.player_type == MAX_PLAYER:
             value = -inf
             direction = 0
