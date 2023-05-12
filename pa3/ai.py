@@ -64,7 +64,22 @@ class Agent:
     #Hint: You can keep track the reward of states with this function as well, e.g., as one of the return values
     #Hint: After this function, you can also define another function that simulates one full trajectory, but it's optional
     def make_one_transition(self, action):
-        pass
+        # If a state is terminal ("game_over"), then you can return None
+        if self.simulator.game_over():
+            return None, self.simulator.check_reward()
+        
+        # HIT
+        if action == HIT:
+            self.simulator.act_hit()
+        # STAND
+        elif action == STAND:
+            self.simulator.act_stand()
+
+        # return the next state given by the game engine
+        # and keep track the reward of states
+        return self.simulator.state, self.simulator.check_reward()
+
+
 
     #TODO: Implement MC policy evaluation
     def MC_run(self, num_simulation, tester=False):
@@ -84,6 +99,7 @@ class Agent:
             # Hint: Go through game.py file and figure out which functions will be useful
             # Make sure to update self.MC_values, self.S_MC, self.N_MC for the autograder
             # Don't forget the DISCOUNT
+            
     
     #TODO: Implement TD policy evaluation
     def TD_run(self, num_simulation, tester=False):
@@ -130,7 +146,15 @@ class Agent:
     #TODO: Implement epsilon-greedy policy
     def pick_action(self, s, epsilon):
         # TODO: Replace the following random value with an action following the epsilon-greedy strategy
-        return random.randint(0, 1)
+        # return random.randint(0, 1)
+        if random.random() < epsilon:
+            return random.randint(0, 1)
+        else:
+            if self.Q_values[s][0] > self.Q_values[s][1]:
+                return 0
+            else:
+                return 1 
+
 
     ####Do not modify anything below this line####
 
