@@ -142,15 +142,14 @@ class Agent:
 
             while cur_s is not None:
                 a = self.default_policy(cur_s)
-                next_s = self.make_one_transition(a)[0]
-                next_r = self.make_one_transition(a)[1]
+                next_s, next_r = self.make_one_transition(a)
+                
 
                 # if next_s is NULL, then TD_V[next_s]=0
                 if next_s is None:
-                    self.TD_values[cur_s] += self.alpha(self.N_TD[cur_s]) * (cur_r + 
-                            DISCOUNT * 0 - self.TD_values[cur_s])
-                else:
-                    self.TD_values[cur_s] += self.alpha(self.N_TD[cur_s]) * (cur_r + 
+                    self.TD_values[next_s] = 0
+                    
+                self.TD_values[cur_s] += self.alpha(self.N_TD[cur_s]) * (cur_r + 
                             DISCOUNT * self.TD_values[next_s] - self.TD_values[cur_s])
 
                 self.N_TD[cur_s] += 1
@@ -187,15 +186,13 @@ class Agent:
             while cur_s is not None:
                 # pick action according to epsilon-greedy
                 a = self.pick_action(cur_s, epsilon)
-                next_s = self.make_one_transition(a)[0]
-                next_r = self.make_one_transition(a)[1]
-
+                next_s,next_r= self.make_one_transition(a)
+                
                 if next_s == None:
                     # if it's null, Q[next_s][next_a] = 0 for every next_a
-                    self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s][a]) * (cur_r + 
-                                    DISCOUNT*0 - self.Q_values[cur_s][a])
-                else:
-                    self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s][a]) * (cur_r + 
+                    self.Q_values[next_s] = [0, 0]
+
+                self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s][a]) * (cur_r + 
                                     DISCOUNT*max(self.Q_values[next_s][0],self.Q_values[next_s][1]) - self.Q_values[cur_s][a])
 
                 self.N_Q[cur_s][a] += 1
