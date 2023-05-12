@@ -79,7 +79,13 @@ class Agent:
         # and keep track the reward of states
         return self.simulator.state, self.simulator.check_reward()
 
+    # helper funtion that simulates one full trajectory
+    def simulate_till_terminal(self):
+        pass
 
+    # helper funtion
+    def reward_to_go(state):
+        pass
 
     #TODO: Implement MC policy evaluation
     def MC_run(self, num_simulation, tester=False):
@@ -100,8 +106,15 @@ class Agent:
             # Make sure to update self.MC_values, self.S_MC, self.N_MC for the autograder
             # Don't forget the DISCOUNT
 
-            
+            # cur_s = self.simulator.state
+            trajectory = self.simulate_till_terminal()
 
+            for s in trajectory:
+                self.S_MC[s] += self.reward_to_go(s)
+                self.N_MC[s] += 1
+                
+                #self.MC_values = average (G[s])
+                self.MC_values[s] = self.S_MC[s]/self.N_MC[s]
 
     
     #TODO: Implement TD policy evaluation
@@ -134,11 +147,11 @@ class Agent:
 
                 # if next_s is NULL, then TD_V[next_s]=0
                 if next_s is None:
-                    self.TD_values += self.alpha(self.N_TD[cur_s]) * (cur_r + 
-                            DISCOUNT*0 - self.TD_values[cur_s][a])
+                    self.TD_values[cur_s] += self.alpha(self.N_TD[cur_s]) * (cur_r + 
+                            DISCOUNT * 0 - self.TD_values[cur_s])
                 else:
-                    self.TD_values += self.alpha(self.N_TD[cur_s]) * (cur_r + 
-                            DISCOUNT*self.TD_values[next_s][a] - self.TD_values[cur_s][a])
+                    self.TD_values[cur_s] += self.alpha(self.N_TD[cur_s]) * (cur_r + 
+                            DISCOUNT * self.TD_values[next_s] - self.TD_values[cur_s])
 
                 self.N_TD[cur_s] += 1
                 cur_s = next_s
@@ -179,13 +192,13 @@ class Agent:
 
                 if next_s == None:
                     # if it's null, Q[next_s][next_a] = 0 for every next_a
-                    self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s]) * (cur_r + 
+                    self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s][a]) * (cur_r + 
                                     DISCOUNT*0 - self.Q_values[cur_s][a])
                 else:
-                    self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s]) * (cur_r + 
+                    self.Q_values[cur_s][a] += self.alpha(self.N_Q[cur_s][a]) * (cur_r + 
                                     DISCOUNT*max(self.Q_values[next_s][0],self.Q_values[next_s][1]) - self.Q_values[cur_s][a])
 
-                self.N_Q[cur_s] += 1
+                self.N_Q[cur_s][a] += 1
                 cur_s = next_s
                 cur_r = next_r
 
