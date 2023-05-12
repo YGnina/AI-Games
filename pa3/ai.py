@@ -99,7 +99,7 @@ class Agent:
             # Hint: Go through game.py file and figure out which functions will be useful
             # Make sure to update self.MC_values, self.S_MC, self.N_MC for the autograder
             # Don't forget the DISCOUNT
-            
+
     
     #TODO: Implement TD policy evaluation
     def TD_run(self, num_simulation, tester=False):
@@ -142,6 +142,29 @@ class Agent:
             # Important: When calling pick_action, use the given parameter epsilon=0.4 to match the autograder
             # Make sure to update self.Q_values, self.N_Q for the autograder
             # Don't forget the DISCOUNT
+
+            # DISCOUNT = gamma
+            cur_s = self.simulator.state
+            cur_r = self.simulator.check_reward()
+
+            while cur_s is not None:
+                # pick action according to epsilon-greedy
+                a = self.pick_action(cur_s, epsilon)
+                next_s = self.make_one_transition(a)[0]
+                next_r = self.make_one_transition(a)[1]
+
+                if next_s == None:
+                    # if it's null, Q[next_s][next_a] = 0 for every next_a
+                    self.Q_values[cur_s][a] += self.alpha(self.Q_values[cur_s][a]) * (cur_r + 
+                                    DISCOUNT*0 - self.Q_values[cur_s][a])
+                else:
+                    self.Q_values[cur_s][a] += self.alpha(self.Q_values[cur_s][a]) * (cur_r + 
+                                    DISCOUNT*max(self.Q_values[next_s][0],self.Q_values[next_s][1]) - self.Q_values[cur_s][a])
+
+                self.N_Q[cur_s][a] += 1
+                cur_s = next_s
+                cur_r = next_r
+                
 
     #TODO: Implement epsilon-greedy policy
     def pick_action(self, s, epsilon):
