@@ -81,11 +81,40 @@ class Agent:
 
     # helper funtion that simulates one full trajectory
     def simulate_till_terminal(self):
-        pass
+        trajectory = []
+        while not self.simulator.game_over():
+            # cur_s = self.simulator.state
+            # r = self.simulator.check_reward()
+            #trajectory.append(state)
+            a = self.default_policy(self.simulator.state)
+            trajectory.append((self.simulator.state,self.simulator.check_reward()))
+            
+            if a == HIT:
+                self.simulator.act_hit()
+            elif a == STAND:
+                self.simulator.act_stand()
+
+        # next_s = self.simulator.state
+        # next_s, next_r = self.make_one_transition(a)
+        
+        trajectory.append((self.simulator.state,self.simulator.check_reward()))
+
+        return trajectory
 
     # helper funtion
-    def reward_to_go(state):
-        pass
+    def reward_to_go(self,trajectory,state):
+        reward = 0
+        k = 0
+        hold = k
+
+        for i in range(len(trajectory)):
+            if trajectory[i] == state:
+                k = i
+        
+        while hold<len(trajectory):
+            reward += (DISCOUNT**(hold-k))*trajectory[hold][1]
+            hold += 1
+        return reward
 
     #TODO: Implement MC policy evaluation
     def MC_run(self, num_simulation, tester=False):
@@ -106,15 +135,15 @@ class Agent:
             # Make sure to update self.MC_values, self.S_MC, self.N_MC for the autograder
             # Don't forget the DISCOUNT
 
-            # cur_s = self.simulator.state
+            # s = self.simulator.state
             trajectory = self.simulate_till_terminal()
 
             for s in trajectory:
-                self.S_MC[s] += self.reward_to_go(s)
-                self.N_MC[s] += 1
+                self.S_MC[s[0]] += self.reward_to_go(trajectory,s[0])
+                self.N_MC[s[0]] += 1
                 
                 #self.MC_values = average (G[s])
-                self.MC_values[s] = self.S_MC[s]/self.N_MC[s]
+                self.MC_values[s[0]] = self.S_MC[s[0]]/self.N_MC[s[0]]
 
     
     #TODO: Implement TD policy evaluation
