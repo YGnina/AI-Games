@@ -82,10 +82,7 @@ class AI:
                     self.simulator.set_state(node.state[0], node.state[1])
                 else:                           #invalid move
                     child = Node(self.simulator.current_state(), None)
-                    node.children.append(child)
-                    self.build_tree(child, depth-1)
-                    # reset the state 
-                    self.simulator.set_state(node.state[0], node.state[1])
+                    
 
     def chance(self,node):
         return 1/len(node.children)     
