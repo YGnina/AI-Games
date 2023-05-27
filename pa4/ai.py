@@ -80,7 +80,7 @@ class AI:
 
         # TODO: add a new child node from an untried action and return this new node
 
-        child_node = None #choose a child node to grow the search tree
+        # child_node = None #choose a child node to grow the search tree
 
         # NOTE: passing the deterministic_test() requires popping an action like this
         action = node.untried_actions.pop(0)
@@ -89,6 +89,9 @@ class AI:
         # NOTE: You may find the following methods useful:
         #   self.simulator.state()
         #   self.simulator.get_actions()
+        
+        child_node = Node(self.simulator.state(),self.simulator.get_actions(),parent=node)
+        node.children.append((action,child_node))
 
         return child_node
 
@@ -100,11 +103,23 @@ class AI:
         best_action = None # to store the action that leads to the best child
         action_ucb_table = {} # to store the UCB values of each child node (for testing)
 
+        max_ucb = -1
+
         # NOTE: deterministic_test() requires iterating in this order
         for child in node.children:
             # NOTE: deterministic_test() requires, in the case of a tie, choosing the FIRST action with 
             # the maximum upper confidence bound 
-            pass
+            action = child[0]
+            child_node = child[1]
+            Ns = child_node.num_visits
+            Qs = child_node.num_wins
+            ucb = Qs/Ns + c*sqrt(2*log(node.num_visits)/Ns)
+            action_ucb_table[action] = ucb
+
+            if action_ucb_table[action] > max_ucb:
+                best_child_node = child_node
+                best_action = action
+                max_ucb = ucb
 
         return best_child_node, best_action, action_ucb_table
 
@@ -113,11 +128,18 @@ class AI:
         while (node is not None):
             # TODO: backpropagate the information about winner
             # IMPORTANT: each node should store the number of wins for the player of its **parent** node
-            break
+            node.num_visits += 1
+            if node.parent is None:
+                # delta = 1 if is controlled by the winner
+                node.num_wins += result[node.parent.state[0]]
+            node = node.parent
 
     def rollout(self, node):
 
         # TODO: rollout (called DefaultPolicy in the slides)
+        self.simulator.reset(*node.state)
+        while not self.simulator.game_over:
+            self.simulator.place(self.simulator.rand_move())
 
         # HINT: you may find the following methods useful:
         #   self.simulator.reset(*node.state)
