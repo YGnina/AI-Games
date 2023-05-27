@@ -44,10 +44,10 @@ class AI:
 
         # TODO: Implement the MCTS Loop
         while(iters < BUDGET):
-            # if ((iters + 1) % 100 == 0):
-            #     # NOTE: if your terminal driver doesn't support carriage returns you can use: 
-            #     # print("{}/{}".format(iters + 1, BUDGET))
-            #     print("\riters/budget: {}/{}".format(iters + 1, BUDGET), end="")
+            if ((iters + 1) % 100 == 0):
+                # NOTE: if your terminal driver doesn't support carriage returns you can use: 
+                # print("{}/{}".format(iters + 1, BUDGET))
+                print("\riters/budget: {}/{}".format(iters + 1, BUDGET), end="")
 
             # TODO: select a node, rollout, and backpropagate
             s = self.select(self.root)
