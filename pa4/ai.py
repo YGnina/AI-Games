@@ -44,10 +44,10 @@ class AI:
 
         # TODO: Implement the MCTS Loop
         while(iters < BUDGET):
-            if ((iters + 1) % 100 == 0):
-                # NOTE: if your terminal driver doesn't support carriage returns you can use: 
-                # print("{}/{}".format(iters + 1, BUDGET))
-                print("\riters/budget: {}/{}".format(iters + 1, BUDGET), end="")
+            # if ((iters + 1) % 100 == 0):
+            #     # NOTE: if your terminal driver doesn't support carriage returns you can use: 
+            #     # print("{}/{}".format(iters + 1, BUDGET))
+            #     print("\riters/budget: {}/{}".format(iters + 1, BUDGET), end="")
 
             # TODO: select a node, rollout, and backpropagate
             s = self.select(self.root)
@@ -68,11 +68,12 @@ class AI:
         # TODO: select a child node
         # HINT: you can use 'is_terminal' field in the Node class to check if node is terminal node
         # NOTE: deterministic_test() requires using c=1 for best_child()
+        
         while not node.is_terminal:
-            if len(node.untried_actions)!=0:
+            if len(node.untried_actions)>0:
                 return self.expand(node)
             else:
-                node = self.best_child(node,1)
+                node = self.best_child(node,1)[0]
 
         return node
 
@@ -89,7 +90,10 @@ class AI:
         # NOTE: You may find the following methods useful:
         #   self.simulator.state()
         #   self.simulator.get_actions()
-        
+
+        self.simulator.reset(*node.state)
+        self.simulator.place(*action)
+
         child_node = Node(self.simulator.state(),self.simulator.get_actions(),parent=node)
         node.children.append((action,child_node))
 
@@ -103,7 +107,7 @@ class AI:
         best_action = None # to store the action that leads to the best child
         action_ucb_table = {} # to store the UCB values of each child node (for testing)
 
-        max_ucb = -1
+        best_ucb = -1
 
         # NOTE: deterministic_test() requires iterating in this order
         for child in node.children:
@@ -116,10 +120,10 @@ class AI:
             ucb = Qs/Ns + c*sqrt(2*log(node.num_visits)/Ns)
             action_ucb_table[action] = ucb
 
-            if action_ucb_table[action] > max_ucb:
+            if ucb > best_ucb:
                 best_child_node = child_node
                 best_action = action
-                max_ucb = ucb
+                best_ucb = ucb
 
         return best_child_node, best_action, action_ucb_table
 
@@ -129,7 +133,7 @@ class AI:
             # TODO: backpropagate the information about winner
             # IMPORTANT: each node should store the number of wins for the player of its **parent** node
             node.num_visits += 1
-            if node.parent is None:
+            if node.parent is not None:
                 # delta = 1 if is controlled by the winner
                 node.num_wins += result[node.parent.state[0]]
             node = node.parent
@@ -139,7 +143,8 @@ class AI:
         # TODO: rollout (called DefaultPolicy in the slides)
         self.simulator.reset(*node.state)
         while not self.simulator.game_over:
-            self.simulator.place(self.simulator.rand_move())
+            action = self.simulator.rand_move()
+            self.simulator.place(*action)
 
         # HINT: you may find the following methods useful:
         #   self.simulator.reset(*node.state)
