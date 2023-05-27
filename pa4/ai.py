@@ -36,11 +36,11 @@ class AI:
         action_win_rates = {} #store the table of actions and their ucb values
 
         # TODO: Delete the following block ->
-        self.simulator.reset(*self.root.state)
-        for action in self.simulator.get_actions():
-            action_win_rates[action] = 0
-        return random.choice(self.simulator.get_actions()), action_win_rates
-        # <- Delete this block
+        # self.simulator.reset(*self.root.state)
+        # for action in self.simulator.get_actions():
+        #     action_win_rates[action] = 0
+        # return random.choice(self.simulator.get_actions()), action_win_rates
+        # # <- Delete this block
 
         # TODO: Implement the MCTS Loop
         while(iters < BUDGET):
@@ -50,6 +50,9 @@ class AI:
                 print("\riters/budget: {}/{}".format(iters + 1, BUDGET), end="")
 
             # TODO: select a node, rollout, and backpropagate
+            s = self.select(self.root)
+            winner = self.rollout(s)
+            self.backpropagate(s,winner)
 
             iters += 1
         print()
@@ -65,6 +68,11 @@ class AI:
         # TODO: select a child node
         # HINT: you can use 'is_terminal' field in the Node class to check if node is terminal node
         # NOTE: deterministic_test() requires using c=1 for best_child()
+        while not node.is_terminal:
+            if len(node.untried_actions)!=0:
+                return self.expand(node)
+            else:
+                node = self.best_child(node,1)
 
         return node
 

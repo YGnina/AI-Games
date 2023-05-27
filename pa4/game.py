@@ -8,7 +8,7 @@ WHITE = 'w'
 BLACK = 'b'
 EMPTY = '.'
 
-ROLLOUT_RNG_MAX = 1000;
+ROLLOUT_RNG_MAX = 1000
 
 class Game:
     def __init__(self, player=BLACK, grid=None):
