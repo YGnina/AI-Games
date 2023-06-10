@@ -3,6 +3,8 @@ from game import sd_peers, sd_spots, sd_domain_num, init_domains, \
     restrict_domain, SD_DIM, SD_SIZE
 import random, copy
 
+conflict = (-1,-1)
+
 class AI:
     def __init__(self):
         pass
@@ -22,19 +24,21 @@ class AI:
         # return domains
         # # <- TODO: delete this block
 
-        assign = []          #σ
+        assign = {}          #σ
         stack = []           #Δ
 
         while True:
             assign, domains = self.propagate(assign,domains)
-            if (0,0) not in assign:
+            if conflict not in assign:
                 if self.allAssigned(assign):
                     return self.solution(assign)
                 else:
-                    assign,x =  self.makeDecision(assign,domains)
-                    stack = stack.append(assign,x,domains)
+                    assign,x = self.makeDecision(assign,domains)
+                    # stack = stack.append(assign,x,domains)
+                    # stack.append((assign,x,domains))
+                    stack.append((copy.deepcopy(assign),x,copy.deepcopy(domains)))
             else:
-                if stack == None:
+                if stack == []:
                     return None
                 else:
                     assign,domains = self.backtrack(stack)
@@ -44,32 +48,83 @@ class AI:
     # TODO: add any supporting function you need
 
     # helper function for solve
-    def allAssigned(a):
-        pass
+    def allAssigned(self,assign):
+        # if len(assign) < len(sd_spots):
+        #     return False
 
-    def solution(a):
-        pass
+        for d in sd_spots:
+            if d not in assign:
+                return False
+        return True
+
+    def solution(self,assign):
+        s = {}
+        for d in assign:
+            s[d] = [assign[d]]
+        return s
+
 
     # take assignment and domains as parameters
-    def propagate(assign,d):
-        # while True:
-        #     # d = domains, x_i = sd_spots
-        #     for x in d:
-        #         if d[x] = a:
-        #             a = a + {(x,a)}
-        pass
+    def propagate(self,assign,domains):
+        while True:
+            # d = domains, x_i = sd_spots
+            # assign = σ
+            new_assign = []
+            for x in domains:
+                # Make assignment if domain becomes singleton
+                if len(domains[x])==1 and x not in assign:
+                    assign[x] = domains[x][0]
+                    # assign = assign + {(x,assign)} 
+                    new_assign.append(x)
+
+            # If x has been assigned a value, update its domain
+            for x in assign: 
+                if len(domains[x])>1:
+                    # domains[x].append(assign)
+                    # domains[x] = assign[x]
+                    domains[x] = [assign[x]]
+                    new_assign.append(x)
+
+            for x in domains:
+                if len(domains[x]) == 0:
+                    assign[conflict] = -1
+                    return assign,domains
+            
+            
+            # if there exists i,j such that 
+            # ai ∈ D(xi) is not consistent with any aj ∈ D(xj) in C 
+            # then D(xi).Remove(ai)
+            consist = True
+
+            for i in new_assign:
+                for j in sd_peers[i]:
+                    if assign[i] in domains[j]:
+                        domains[j].remove(assign[i])
+                        consist = False
+            if consist:
+                return assign,domains
+    
 
 
-    def makeDecision(assign,d):
-        # if x in assign:
-        #     a = d()
-        pass
+    def makeDecision(self,assign,domains):
+        min_len = float('inf')
+        min_x = None
+        for x in domains:
+            if x not in assign:
+                # domain_len = len(x)#len(domains[x])
+                if len(x) < min_len:
+                    min_len = len(x)
+                    min_x = x
+        assign[min_x] = domains[min_x][0]
+        return assign, min_x
 
 
-    def backtrack(s):
-        assign,x,domains = s.pop()
+
+    def backtrack(self,stack):
+        assign,x,domains = stack.pop()
         a = assign[x]
-        assign.remove((x,a))
+        # assign.remove((x,a))
+        assign.pop(x)
         domains[x].remove(a)
 
         return assign,domains
