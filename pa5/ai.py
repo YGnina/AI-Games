@@ -60,6 +60,7 @@ class AI:
     def solution(self,assign):
         s = {}
         for d in assign:
+            # s[d] = assign[d]
             s[d] = [assign[d]]
         return s
 
@@ -110,11 +111,9 @@ class AI:
         min_len = float('inf')
         min_x = None
         for x in domains:
-            if x not in assign:
-                # domain_len = len(x)#len(domains[x])
-                if len(x) < min_len:
-                    min_len = len(x)
-                    min_x = x
+            if x not in assign and len(x) < min_len:
+                min_len = len(x)
+                min_x = x
         assign[min_x] = domains[min_x][0]
         return assign, min_x
 
