@@ -34,7 +34,7 @@ class AI:
                     return self.solution(assign)
                 else:
                     assign,x = self.makeDecision(assign,domains)
-                    # stack = stack.append(assign,x,domains)
+                    # stack = stack.push(assign,x,domains)
                     # stack.append((assign,x,domains))
                     stack.append((copy.deepcopy(assign),x,copy.deepcopy(domains)))
             else:
@@ -49,21 +49,10 @@ class AI:
 
     # helper function for solve
     def allAssigned(self,assign):
-        # if len(assign) < len(sd_spots):
-        #     return False
-
-        for d in sd_spots:
-            if d not in assign:
-                return False
-        return True
+        return len(assign) == len(sd_spots)
 
     def solution(self,assign):
-        s = {}
-        for d in assign:
-            # s[d] = assign[d]
-            s[d] = [assign[d]]
-        return s
-
+        return {d: [assign[d]] for d in assign}
 
     # take assignment and domains as parameters
     def propagate(self,assign,domains):
@@ -111,12 +100,11 @@ class AI:
         min_len = float('inf')
         min_x = None
         for x in domains:
-            if x not in assign and len(x) < min_len:
-                min_len = len(x)
+            if x not in assign and len(domains[x]) < min_len:
+                min_len = len(domains[x])
                 min_x = x
         assign[min_x] = domains[min_x][0]
         return assign, min_x
-
 
 
     def backtrack(self,stack):
